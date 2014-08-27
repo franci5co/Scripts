@@ -1,0 +1,526 @@
+'Creates a new entry in Saplogon.ini 
+'Created by Leonardo Fagundes on Sep 8th, 2010 
+'http://leonardomsft.spaces.live.com
+'Adaptado por Francisco Vergara para CAP el 25 de Febrero del 2014
+
+Set objFSO = CreateObject("Scripting.FileSystemObject") 
+Set WshShell = WScript.CreateObject("Wscript.Shell")
+vAPPDATA = WshShell.ExpandEnvironmentStrings("%APPDATA%")
+arch = 0
+Dim objfso, SourceFile, TargetFile, txtContent, TextLine, StrSection 
+Const ForReading = 1, ForWriting = 2, TristateTrue = -1 
+
+Function GetNextEntryNo(strFile) 
+  Dim objFile, IntCount, IntCurrent 
+  If objFSO.FileExists(strFile) Then 
+    Set objFile = objFSO.OpenTextFile(strFile, ForReading) 
+    Do While objFile.AtEndOfStream <> True 
+      TextLine = objFile.ReadLine 
+      If Left(TextLine, 4) = "Item" Then 
+        If IsNumeric(Mid(TextLine, 5, 2)) Then 
+          IntCurrent = int(Mid(TextLine, 5, 2)) 
+          if intCurrent > IntCount Then 
+            IntCount = intcurrent 
+          End if 
+        Else 
+          IntCurrent = int(Mid(TextLine, 5, 1)) 
+          if intCurrent > IntCount Then 
+            IntCount = intCurrent 
+          End If 
+        End if 		
+      End If 
+    Loop 
+  objFile.Close 
+  GetNextEntryNo = IntCount  
+  End If 
+End Function 
+
+Function TextExists(strFile, strSearch) 
+  Dim strContents, CheckText, objFile 
+  CheckText = 0 
+  If objFSO.FileExists(strFile) Then 
+    Set objFile = objFSO.OpenTextFile(strFile, ForReading) 
+    strContents = objFile.ReadAll 
+    objFile.Close 
+    If InStr(strContents, strSearch) > 0 Then 
+      TextExists = True 
+    Else 
+      TextExists = False 
+    End If 
+  End If 
+End Function 
+
+BIQ = TextExists(vAPPDATA & "\SAP\Common\saplogon.ini", "06 CAP ENTEL BI TEST")
+BIQsr = TextExists(vAPPDATA & "\SAP\Common\saplogon.ini", "07 CAP ENTEL BI TEST SAPROUTER")
+XIQ = TextExists(vAPPDATA & "\SAP\Common\saplogon.ini", "08 CAP ENTEL XI TEST")
+XIQsr = TextExists(vAPPDATA & "\SAP\Common\saplogon.ini", "09 CAP ENTEL XI TEST SAPROUTER")
+QVK = TextExists(vAPPDATA & "\SAP\Common\saplogon.ini", "10 CAP ENTEL ERP TEST")
+QVKsr = TextExists(vAPPDATA & "\SAP\Common\saplogon.ini", "11 CAP ENTEL ERP TEST SAPROUTER")
+
+IntCountItems = GetNextEntryNo(vAPPDATA & "\SAP\Common\saplogon.ini") 
+
+Set SourceFile = objfso.OpenTextFile(vAPPDATA & "\SAP\Common\saplogon.ini", ForReading) 
+Set TargetFile = objfso.OpenTextFile(vAPPDATA & "\SAP\Common\saplogon.txt", ForWriting, True) 
+
+if BIQ then
+	arch = 1
+else 
+	arch = 0
+	Do While SourceFile.AtEndOfStream <> True 
+		TextLine = SourceFile.ReadLine 
+		TargetFile.WriteLine TextLine 
+  
+		if Left(TextLine, 1) = "[" then 
+			StrSection = TextLine 
+		End If 
+		if Left(TextLine, 4 + Len(IntCountItems)) = "Item" & IntCountItems then
+			Select Case StrSection 
+				Case "[RouterChoice]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[Server]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=10.83.116.21" 
+				Case "[Database]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=00"
+				Case "[System]" 	
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=3" 
+				Case "[Description]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=06 CAP ENTEL BI TEST" 
+				Case "[MSSysName]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=BIQ" 
+				Case "[SessManKey]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[SncChoice]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[Codepage]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=1100" 
+				Case "[CodepageIndex]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[Origin]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=USEREDIT" 
+				Case "[LowSpeedConnection]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[Utf8Off]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[EncodingID]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=DEFAULT_NON_UC" 
+				Case "[ShortcutType]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case Else 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=" 
+			End Select 
+		End If 
+	Loop
+SourceFile.Close 
+TargetFile.Close 
+
+if objfso.FileExists(vAPPDATA & "\SAP\Common\saplogon.old") Then
+	objfso.DeleteFile(vAPPDATA & "\SAP\Common\saplogon.old") 
+End If 
+
+Set SourceFile=objfso.getfile(vAPPDATA & "\SAP\Common\saplogon.ini")    
+sname=SourceFile.name             
+SourceFile.name=Left(sname,8) & ".old"  
+set SourceFile=Nothing 
+
+Set SourceFile=objfso.getfile(vAPPDATA & "\SAP\Common\saplogon.txt")    
+sname=SourceFile.name             
+SourceFile.name=Left(sname,8) & ".ini"  
+set SourceFile=Nothing 
+
+End If
+
+if arch = 1 then
+	SourceFile.Close 
+	TargetFile.Close
+End If
+
+IntCountItems = GetNextEntryNo(vAPPDATA & "\SAP\Common\saplogon.ini") 
+
+Set SourceFile = objfso.OpenTextFile(vAPPDATA & "\SAP\Common\saplogon.ini", ForReading) 
+Set TargetFile = objfso.OpenTextFile(vAPPDATA & "\SAP\Common\saplogon.txt", ForWriting, True) 
+
+if BIQsr then
+	arch = 1
+else 
+	arch = 0
+	Do While SourceFile.AtEndOfStream <> True 
+		TextLine = SourceFile.ReadLine 
+		TargetFile.WriteLine TextLine 
+  
+		if Left(TextLine, 1) = "[" then 
+			StrSection = TextLine 
+		End If 
+		if Left(TextLine, 4 + Len(IntCountItems)) = "Item" & IntCountItems then
+			Select Case StrSection 
+				Case "[Router]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=/H/186.67.65.169/S/30000/H/" 
+				Case "[RouterChoice]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[Server]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=10.83.116.21" 
+				Case "[Database]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=00"
+				Case "[System]" 	
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=3" 
+				Case "[Description]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=07 CAP ENTEL BI TEST SAPROUTER" 
+				Case "[MSSysName]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=BIQ" 
+				Case "[SessManKey]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[SncChoice]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[Codepage]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=1100" 
+				Case "[CodepageIndex]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[Origin]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=USEREDIT" 
+				Case "[LowSpeedConnection]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[Utf8Off]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[EncodingID]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=DEFAULT_NON_UC" 
+				Case "[ShortcutType]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case Else 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=" 
+			End Select 
+		End If 
+	Loop 	
+SourceFile.Close 
+TargetFile.Close 
+
+if objfso.FileExists(vAPPDATA & "\SAP\Common\saplogon.old") Then
+	objfso.DeleteFile(vAPPDATA & "\SAP\Common\saplogon.old") 
+End If 
+
+Set SourceFile=objfso.getfile(vAPPDATA & "\SAP\Common\saplogon.ini")    
+sname=SourceFile.name             
+SourceFile.name=Left(sname,8) & ".old"  
+set SourceFile=Nothing 
+
+Set SourceFile=objfso.getfile(vAPPDATA & "\SAP\Common\saplogon.txt")    
+sname=SourceFile.name             
+SourceFile.name=Left(sname,8) & ".ini"  
+set SourceFile=Nothing 
+
+End If
+
+if arch = 1 then
+	SourceFile.Close 
+	TargetFile.Close
+End If
+
+IntCountItems = GetNextEntryNo(vAPPDATA & "\SAP\Common\saplogon.ini") 
+
+Set SourceFile = objfso.OpenTextFile(vAPPDATA & "\SAP\Common\saplogon.ini", ForReading) 
+Set TargetFile = objfso.OpenTextFile(vAPPDATA & "\SAP\Common\saplogon.txt", ForWriting, True) 
+
+if XIQ then
+	arch = 1
+else 
+	arch = 0
+	Do While SourceFile.AtEndOfStream <> True 
+		TextLine = SourceFile.ReadLine 
+		TargetFile.WriteLine TextLine 
+  
+		if Left(TextLine, 1) = "[" then 
+			StrSection = TextLine 
+		End If 
+		if Left(TextLine, 4 + Len(IntCountItems)) = "Item" & IntCountItems then
+			Select Case StrSection 
+				Case "[Router]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=" 
+				Case "[RouterChoice]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[Server]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=10.83.116.20" 
+				Case "[Database]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=04"
+				Case "[System]" 	
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=3" 
+				Case "[Description]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=08 CAP ENTEL XI TEST" 
+				Case "[MSSysName]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=XIQ" 
+				Case "[SessManKey]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[SncChoice]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[Codepage]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=1100" 
+				Case "[CodepageIndex]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[Origin]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=USEREDIT" 
+				Case "[LowSpeedConnection]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[Utf8Off]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[EncodingID]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=DEFAULT_NON_UC" 
+				Case "[ShortcutType]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case Else 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=" 
+			End Select 
+		End If 
+	Loop 	
+SourceFile.Close 
+TargetFile.Close 
+
+if objfso.FileExists(vAPPDATA & "\SAP\Common\saplogon.old") Then
+	objfso.DeleteFile(vAPPDATA & "\SAP\Common\saplogon.old") 
+End If 
+
+Set SourceFile=objfso.getfile(vAPPDATA & "\SAP\Common\saplogon.ini")    
+sname=SourceFile.name             
+SourceFile.name=Left(sname,8) & ".old"  
+set SourceFile=Nothing 
+
+Set SourceFile=objfso.getfile(vAPPDATA & "\SAP\Common\saplogon.txt")    
+sname=SourceFile.name             
+SourceFile.name=Left(sname,8) & ".ini"  
+set SourceFile=Nothing 
+
+End If
+
+if arch = 1 then
+	SourceFile.Close 
+	TargetFile.Close
+End If
+
+
+IntCountItems = GetNextEntryNo(vAPPDATA & "\SAP\Common\saplogon.ini") 
+
+Set SourceFile = objfso.OpenTextFile(vAPPDATA & "\SAP\Common\saplogon.ini", ForReading) 
+Set TargetFile = objfso.OpenTextFile(vAPPDATA & "\SAP\Common\saplogon.txt", ForWriting, True) 
+
+if XIQsr then
+	arch = 1
+else 
+	arch = 0
+	Do While SourceFile.AtEndOfStream <> True 
+		TextLine = SourceFile.ReadLine 
+		TargetFile.WriteLine TextLine 
+  
+		if Left(TextLine, 1) = "[" then 
+			StrSection = TextLine 
+		End If 
+		if Left(TextLine, 4 + Len(IntCountItems)) = "Item" & IntCountItems then
+			Select Case StrSection 
+				Case "[Router]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=/H/186.67.65.169/S/30000/H/" 
+				Case "[RouterChoice]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[Server]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=10.83.116.20" 
+				Case "[Database]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=04"
+				Case "[System]" 	
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=3" 
+				Case "[Description]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=09 CAP ENTEL XI TEST SAPROUTER" 
+				Case "[MSSysName]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=XIQ" 
+				Case "[SessManKey]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[SncChoice]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[Codepage]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=1100" 
+				Case "[CodepageIndex]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[Origin]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=USEREDIT" 
+				Case "[LowSpeedConnection]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[Utf8Off]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[EncodingID]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=DEFAULT_NON_UC" 
+				Case "[ShortcutType]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case Else 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=" 
+			End Select 
+		End If 
+	Loop 	
+SourceFile.Close 
+TargetFile.Close 
+
+if objfso.FileExists(vAPPDATA & "\SAP\Common\saplogon.old") Then
+	objfso.DeleteFile(vAPPDATA & "\SAP\Common\saplogon.old") 
+End If 
+
+Set SourceFile=objfso.getfile(vAPPDATA & "\SAP\Common\saplogon.ini")    
+sname=SourceFile.name             
+SourceFile.name=Left(sname,8) & ".old"  
+set SourceFile=Nothing 
+
+Set SourceFile=objfso.getfile(vAPPDATA & "\SAP\Common\saplogon.txt")    
+sname=SourceFile.name             
+SourceFile.name=Left(sname,8) & ".ini"  
+set SourceFile=Nothing 
+
+End If
+
+if arch = 1 then
+	SourceFile.Close 
+	TargetFile.Close
+End If
+
+IntCountItems = GetNextEntryNo(vAPPDATA & "\SAP\Common\saplogon.ini") 
+
+Set SourceFile = objfso.OpenTextFile(vAPPDATA & "\SAP\Common\saplogon.ini", ForReading) 
+Set TargetFile = objfso.OpenTextFile(vAPPDATA & "\SAP\Common\saplogon.txt", ForWriting, True) 
+
+if QVK then
+	arch = 1
+else 
+	arch = 0
+	Do While SourceFile.AtEndOfStream <> True 
+		TextLine = SourceFile.ReadLine 
+		TargetFile.WriteLine TextLine 
+  
+		if Left(TextLine, 1) = "[" then 
+			StrSection = TextLine 
+		End If 
+		if Left(TextLine, 4 + Len(IntCountItems)) = "Item" & IntCountItems then
+			Select Case StrSection 
+				Case "[Router]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=" 
+				Case "[RouterChoice]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[Server]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=10.83.116.19" 
+				Case "[Database]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=00"
+				Case "[System]" 	
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=3" 
+				Case "[Description]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=10 CAP ENTEL ERP TEST" 
+				Case "[MSSysName]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=QVK" 
+				Case "[SessManKey]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[SncChoice]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[Codepage]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=1100" 
+				Case "[CodepageIndex]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[Origin]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=USEREDIT" 
+				Case "[LowSpeedConnection]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[Utf8Off]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[EncodingID]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=DEFAULT_NON_UC" 
+				Case "[ShortcutType]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case Else 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=" 
+			End Select 
+		End If 
+	Loop 	
+SourceFile.Close 
+TargetFile.Close 
+
+if objfso.FileExists(vAPPDATA & "\SAP\Common\saplogon.old") Then
+	objfso.DeleteFile(vAPPDATA & "\SAP\Common\saplogon.old") 
+End If 
+
+Set SourceFile=objfso.getfile(vAPPDATA & "\SAP\Common\saplogon.ini")    
+sname=SourceFile.name             
+SourceFile.name=Left(sname,8) & ".old"  
+set SourceFile=Nothing 
+
+Set SourceFile=objfso.getfile(vAPPDATA & "\SAP\Common\saplogon.txt")    
+sname=SourceFile.name             
+SourceFile.name=Left(sname,8) & ".ini"  
+set SourceFile=Nothing 
+
+End If
+
+if arch = 1 then
+	SourceFile.Close 
+	TargetFile.Close
+End If
+
+IntCountItems = GetNextEntryNo(vAPPDATA & "\SAP\Common\saplogon.ini") 
+
+Set SourceFile = objfso.OpenTextFile(vAPPDATA & "\SAP\Common\saplogon.ini", ForReading) 
+Set TargetFile = objfso.OpenTextFile(vAPPDATA & "\SAP\Common\saplogon.txt", ForWriting, True) 
+
+if QVKsr then
+	arch = 1
+else 
+	arch = 0
+	Do While SourceFile.AtEndOfStream <> True 
+		TextLine = SourceFile.ReadLine 
+		TargetFile.WriteLine TextLine 
+  
+		if Left(TextLine, 1) = "[" then 
+			StrSection = TextLine 
+		End If 
+		if Left(TextLine, 4 + Len(IntCountItems)) = "Item" & IntCountItems then
+			Select Case StrSection 
+				Case "[Router]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=/H/186.67.65.169/S/30000/H/" 
+				Case "[RouterChoice]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[Server]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=10.83.116.19" 
+				Case "[Database]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=00"
+				Case "[System]" 	
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=3" 
+				Case "[Description]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=11 CAP ENTEL ERP TEST SAPROUTER" 
+				Case "[MSSysName]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=QVK" 
+				Case "[SessManKey]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[SncChoice]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[Codepage]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=1100" 
+				Case "[CodepageIndex]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=-1" 
+				Case "[Origin]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=USEREDIT" 
+				Case "[LowSpeedConnection]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[Utf8Off]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case "[EncodingID]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=DEFAULT_NON_UC" 
+				Case "[ShortcutType]" 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=0" 
+				Case Else 
+					TargetFile.WriteLine "Item" & IntCountItems + 1 & "=" 
+			End Select 
+		End If 
+	Loop 	
+SourceFile.Close 
+TargetFile.Close 
+
+if objfso.FileExists(vAPPDATA & "\SAP\Common\saplogon.old") Then
+	objfso.DeleteFile(vAPPDATA & "\SAP\Common\saplogon.old") 
+End If 
+
+Set SourceFile=objfso.getfile(vAPPDATA & "\SAP\Common\saplogon.ini")    
+sname=SourceFile.name             
+SourceFile.name=Left(sname,8) & ".old"  
+set SourceFile=Nothing 
+
+Set SourceFile=objfso.getfile(vAPPDATA & "\SAP\Common\saplogon.txt")    
+sname=SourceFile.name             
+SourceFile.name=Left(sname,8) & ".ini"  
+set SourceFile=Nothing 
+
+End If
