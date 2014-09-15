@@ -4,7 +4,7 @@ import sys
 import sqlite3
 
 
-def ctaPaginas (nombreArchivo,contador,contadorLineas):
+def ctaPaginas (nombreArchivo,contador):
 	
 	with open(nombreArchivo,'r') as tempFile:
 		archivoCompleto = tempFile.readlines()
@@ -12,15 +12,14 @@ def ctaPaginas (nombreArchivo,contador,contadorLineas):
 		for line in archivoCompleto :
 			if ("NOMBRE" in line):
 				contador = contador + 1
-				contadorLineas = contadorLineas + 1
+				#contadorLineas = contadorLineas + 1
 				#print line
 				#print contador
-			else:
-				contadorLineas = contadorLineas + 1
+			#contadorLineas = contadorLineas + 1
 
-	print contadorLineas
-	print contador
-	return (contador, contadorLineas)
+	#print contadorLineas
+	#print contador
+	return contador
 
 def insertaSQL (nombreUsuario,rutUsuario,dvUsuario,dirUsuario,archivoActual):
 	conn = sqlite3.connect('/home/francisco/Documents/usuarios')
@@ -44,7 +43,9 @@ tempMatrix = [[] for _ in range(70)]
 #print tempMatrix
 #for x in range(0,69)
 	
-contador, contadorLineas = ctaPaginas("/home/francisco/PDF/A1249004.pdf.txt",cont,cont2)
+contador = ctaPaginas("/home/francisco/PDF/A1249004.pdf.txt",cont)
+contadorLineas = ctaLineas("/home/francisco/PDF/A1249004.pdf.txt",cont2)
+
 print contador
 print contadorLineas
 
