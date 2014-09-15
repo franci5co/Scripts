@@ -21,6 +21,26 @@ def ctaPaginas (nombreArchivo,contador):
 	#print contador
 	return contador
 
+def ctaLineas (nombreArchivo,contador):
+	
+	with open(nombreArchivo,'r') as tempFile:
+		rutFlag = True
+		nomFlag = False
+		archivoCompleto = tempFile.readlines()
+		while (rutFlag):
+			for line in archivoCompleto :
+				if ("C.IDENTIDAD" in line):
+					rutFlag = False
+					break
+				if ("NOMBRE" in line):
+					nomFlag = True
+					continue
+				if (line.strip() and nomFlag):
+					contador = contador + 1
+
+
+	return contador
+
 def insertaSQL (nombreUsuario,rutUsuario,dvUsuario,dirUsuario,archivoActual):
 	conn = sqlite3.connect('/home/francisco/Documents/usuarios')
 	c = conn.cursor()
@@ -34,7 +54,9 @@ cont = 0
 cont2 = 0
 
 archivosLista = os.listdir("/home/francisco/PDF")
-tempMatrix = [[] for _ in range(70)]
+
+##tempMatrix = [[] for _ in range(70)]
+
 #tempMatrix =  [ [ range(5) ] for i in range(70) ] 
 #print tempMatrix 
 #tempMatrix[0].append("jose francisco")
@@ -43,10 +65,11 @@ tempMatrix = [[] for _ in range(70)]
 #print tempMatrix
 #for x in range(0,69)
 	
-contador = ctaPaginas("/home/francisco/PDF/A1249004.pdf.txt",cont)
+##contador = ctaPaginas("/home/francisco/PDF/A1249004.pdf.txt",cont)
+
 contadorLineas = ctaLineas("/home/francisco/PDF/A1249004.pdf.txt",cont2)
 
-print contador
+#print contador
 print contadorLineas
 
 #with open("/home/francisco/PDF/A1249004.pdf.txt",'r') as f:
