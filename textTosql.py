@@ -17,27 +17,36 @@ def ctaPaginas (nombreArchivo,contador):
 				#print contador
 			#contadorLineas = contadorLineas + 1
 
-	#print contadorLineas
+	#print contadorLineasl
 	#print contador
 	return contador
 
-def ctaLineas (nombreArchivo,contador):
+def ctaLineas (nombreArchivo,contador,pagina):
 	
 	with open(nombreArchivo,'r') as tempFile:
 		rutFlag = True
 		nomFlag = False
+		contNombre = 0
 		archivoCompleto = tempFile.readlines()
 		while (rutFlag):
 			for line in archivoCompleto :
-				if ("C.IDENTIDAD" in line):
+				print 'cNombre ' , contNombre
+				print 'pagina ' , pagina
+				print 'nomFlag ' ,  nomFlag
+				print 'linea ' , line
+				print 'contador ', contador
+				print 'rutFlag ', rutFlag
+				if ("NOMBRE" in line):
+					contNombre = contNombre + 1
+				if ("C.IDENTIDAD" in line and contNombre == pagina):
 					rutFlag = False
 					break
-				if ("NOMBRE" in line):
+				if ("NOMBRE" in line and contNombre == pagina):
 					nomFlag = True
 					continue
 				if (line.strip() and nomFlag):
 					contador = contador + 1
-
+				#contNombre = contNombre + 1
 
 	return contador
 
@@ -52,10 +61,11 @@ def insertaSQL (nombreUsuario,rutUsuario,dvUsuario,dirUsuario,archivoActual):
 
 cont = 0
 cont2 = 0
+pagina = 16
 
 archivosLista = os.listdir("/home/francisco/PDF")
 
-##tempMatrix = [[] for _ in range(70)]
+tempMatrix = [[] for _ in range(70)]
 
 #tempMatrix =  [ [ range(5) ] for i in range(70) ] 
 #print tempMatrix 
@@ -65,11 +75,10 @@ archivosLista = os.listdir("/home/francisco/PDF")
 #print tempMatrix
 #for x in range(0,69)
 	
-##contador = ctaPaginas("/home/francisco/PDF/A1249004.pdf.txt",cont)
+contador = ctaPaginas("/home/francisco/PDF/A1249004.pdf.txt",cont)
+contadorLineas = ctaLineas("/home/francisco/PDF/A1249004.pdf.txt", cont2, pagina)
 
-contadorLineas = ctaLineas("/home/francisco/PDF/A1249004.pdf.txt",cont2)
-
-#print contador
+print contador
 print contadorLineas
 
 #with open("/home/francisco/PDF/A1249004.pdf.txt",'r') as f:
