@@ -79,7 +79,7 @@ contador = ctaPaginas("/home/francisco/PDF/A1249004.pdf.txt",cont)
 contadorLineas = ctaLineas("/home/francisco/PDF/A1249004.pdf.txt", cont2, pagina)
 
 print contador
-print contadorLineas
+print 'pagina ',pagina,' lineas ', contadorLineas
 
 #with open("/home/francisco/PDF/A1249004.pdf.txt",'r') as f:
 #	data = f.readlines()
