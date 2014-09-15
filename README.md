@@ -5,7 +5,7 @@ Scripts
 
 **-diskTofile.vbs**: Visual Basic script para determinar el tamaño de un disco montado en un punto de montaje desde storage en un SO Windows.
 
-**--busquedaPDF**: Bash script para buscar las coincidencias de un string en varios archivos PDF.
+**-busquedaPDF**: Bash script para buscar las coincidencias de un string en varios archivos PDF.
 
 **-scriptCAP_SAPGUI_QAS.vbs.txt**: Visual Basic script para agregar entradas al SAP Logon.
 
