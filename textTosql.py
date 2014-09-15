@@ -51,17 +51,26 @@ def ctaLineas (nombreArchivo,contador,pagina):
 	return contador
 
 def insertaSQL (nombreUsuario,rutUsuario,dvUsuario,dirUsuario,archivoActual):
-	conn = sqlite3.connect('/home/francisco/Documents/usuarios')
+	conn = sqlite3.connect('usuarios')
 	c = conn.cursor()
-	c.execute("INSERT INTO usuarios VALUES ('?','?','?','?','?')")
+	valores = [nombreUsuario,rutUsuario,dvUsuario,dirUsuario,archivoActual]
+	c.execute('INSERT INTO alfa VALUES (?,?,?,?,?)', valores,)
 	conn.commit()
 	conn.close()
+
+def formateaRUT (rut):
+	rut = rut.split('-')
+	ci = rut[0].replace(".","")
+	dv = rut[1]
+	return (ci,dv)
 
 #def llenaMatrizTemporal () :
 
 cont = 0
 cont2 = 0
 pagina = 16
+mi_rut = 0
+mi_dv = ''
 
 archivosLista = os.listdir("/home/francisco/PDF")
 
@@ -80,6 +89,10 @@ contadorLineas = ctaLineas("/home/francisco/PDF/A1249004.pdf.txt", cont2, pagina
 
 print contador
 print 'pagina ',pagina,' lineas ', contadorLineas
+
+mi_rut, mi_dv = formateaRUT('13.212.057-k')
+print mi_rut,mi_dv
+##insertaSQL('jose francisco vergara',13212057,'9','eleuterio ramirez 875', 'A1249004')
 
 #with open("/home/francisco/PDF/A1249004.pdf.txt",'r') as f:
 #	data = f.readlines()
