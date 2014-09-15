@@ -68,9 +68,13 @@ def formateaRUT (rut):
 
 cont = 0
 cont2 = 0
-pagina = 16
+pagina = 1
 mi_rut = 0
 mi_dv = ''
+nuevaCuenta = 0
+bandera = False
+
+
 
 archivosLista = os.listdir("/home/francisco/PDF")
 
@@ -84,14 +88,35 @@ tempMatrix = [[] for _ in range(70)]
 #print tempMatrix
 #for x in range(0,69)
 	
-contador = ctaPaginas("/home/francisco/PDF/A1249004.pdf.txt",cont)
+#contador = ctaPaginas("/home/francisco/PDF/A1249004.pdf.txt",cont)
 contadorLineas = ctaLineas("/home/francisco/PDF/A1249004.pdf.txt", cont2, pagina)
 
-print contador
+#print contador
 print 'pagina ',pagina,' lineas ', contadorLineas
 
 mi_rut, mi_dv = formateaRUT('13.212.057-k')
 print mi_rut,mi_dv
+
+
+with open("/home/francisco/PDF/A1249004.pdf.txt",'r') as tempFile:
+	archivoCompleto = tempFile.readlines()
+	for linea in archivoCompleto:
+		if ("NOMBRE" in linea and nuevaCuenta == 0):
+			bandera = True
+			continue
+
+		if (bandera == False):
+			continue
+
+		if (bandera):
+			tempMatrix[nuevaCuenta].append(linea)
+			nuevaCuenta = nuevaCuenta + 1
+			if (nuevaCuenta > 69):
+				break
+
+
+print tempMatrix
+
 ##insertaSQL('jose francisco vergara',13212057,'9','eleuterio ramirez 875', 'A1249004')
 
 #with open("/home/francisco/PDF/A1249004.pdf.txt",'r') as f:
