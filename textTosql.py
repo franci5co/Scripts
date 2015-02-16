@@ -1,14 +1,13 @@
-
 import os
 import sys
 import sqlite3
 
 
-def cta_paginas (nombre_archivo,contador):
-    with open(nombre_archivo,'r') as tempFile:
-        archivo_completo = tempFile.readlines()
+def cta_paginas(nombre_archivo, contador):
+    with open(nombre_archivo, 'r') as tempFile_def1:
+        archivo_completo_def1 = tempFile_def1.readlines()
         # print archivo_completo
-        for line in archivo_completo :
+        for line in archivo_completo_def1:
             if "NOMBRE" in line:
                 contador += 1
                 # contadorLineas = contadorLineas + 1
@@ -21,32 +20,31 @@ def cta_paginas (nombre_archivo,contador):
     return contador
 
 
-def cta_lineas (nombre_archivo,contador,pagina):
-    with open(nombre_archivo,'r') as tempFile:
+def cta_lineas(nombre_archivo, contador, pagina_def2):
+    with open(nombre_archivo, 'r') as tempFile_def2:
         rut_flag = True
         nom_flag = False
         cont_nombre = 0
-        archivo_completo = tempFile.readlines()
+        archivo_completo_def2 = tempFile_def2.readlines()
         while rut_flag:
-            for line in archivo_completo :
-                print 'cNombre ' , cont_nombre
-                print 'pagina ' , pagina
-                print 'nom_flag ' ,  nom_flag
-                print 'linea ' , line
+            for line in archivo_completo_def2:
+                print 'cNombre ', cont_nombre
+                print 'pagina_def2 ', pagina_def2
+                print 'nom_flag ',  nom_flag
+                print 'linea ', line
                 print 'contador ', contador
                 print 'rut_flag ', rut_flag
                 if "NOMBRE" in line:
                     cont_nombre += 1
-                if "C.IDENTIDAD" in line and cont_nombre == pagina:
+                if "C.IDENTIDAD" in line and cont_nombre == pagina_def2:
                     rut_flag = False
                     break
-                if "NOMBRE" in line and cont_nombre == pagina:
+                if "NOMBRE" in line and cont_nombre == pagina_def2:
                     nom_flag = True
                     continue
                 if line.strip() and nom_flag:
                     contador += 1
                     # cont_nombre = cont_nombre + 1
-
     return contador
 
 
@@ -91,13 +89,12 @@ tempMatrix = [[] for _ in range(70)]
 contadorLineas = cta_lineas("/home/francisco/PDF/A1249004.pdf.txt", cont2, pagina)
 
 # print contador
-print 'pagina ',pagina,' lineas ', contadorLineas
+print 'pagina ', pagina, ' lineas ', contadorLineas
 
 mi_rut, mi_dv = parse_rut('13.212.057-k')
-print mi_rut,mi_dv
+print mi_rut, mi_dv
 
-
-with open("/home/francisco/PDF/A1249004.pdf.txt",'r') as tempFile:
+with open("/home/francisco/PDF/A1249004.pdf.txt", 'r') as tempFile:
     archivo_completo = tempFile.readlines()
     for linea in archivo_completo:
         if "NOMBRE" in linea and nuevaCuenta == 0:
