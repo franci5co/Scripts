@@ -4,10 +4,12 @@ contador = 0
 sc = 0
 archivos = filter(os.path.isfile, os.listdir(os.curdir))
 archivoout = open('salida.csv', 'w')
+archivolog = open('archivos_procesados.txt', 'w')
 for f in archivos:
     ruta_archivo = os.curdir
     path_archivo = os.getcwd()
-    if f != "parseador3.1.py" and f != "parseador3.py":
+    if ".py" not in f and ".csv" not in f:
+        archivolog.write(f + "\n")
         with open(path_archivo + "/" + f, 'r') as origen:
             for linea in origen:
                 contador += 1
@@ -27,5 +29,6 @@ for f in archivos:
                     archivoout.write(url1 + ";" + cms1 + ";" + ver + "\n")
 
 archivoout.close()
+archivolog.close()
 
 
