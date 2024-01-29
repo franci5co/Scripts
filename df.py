@@ -23,7 +23,7 @@ def sendemail(from_addr, to_addr_list, cc_addr_list,
     server.quit()
     return problems
 
-mensaje = "PO UdeConce Desarrollo\n\n"
+mensaje = "PO Desarrollo\n\n"
 mensaje += "Filesystem   Montado en         Uso%  \n"
 with contextlib.closing(open('/etc/mtab')) as fp:
         for m in fp:
@@ -34,10 +34,10 @@ with contextlib.closing(open('/etc/mtab')) as fp:
                         inode_usage_pct = 100.0 - (float(r.f_favail) / float(r.f_files) * 100)
                         mensaje += "%-12s %-16s %5d\n" % (fs_spec, fs_file, block_usage_pct)
 
-sendemail(from_addr    = 'monitoraservices@gmail.com',
-          to_addr_list = ['francisco.vergara@aservicorp.com'],
+sendemail(from_addr    = 'xxx@xxx.com',
+          to_addr_list = ['xxx@xxx.com'],
           cc_addr_list = [''],
-          subject      = 'ESPACIO UdeConce PO DES',
+          subject      = 'ESPACIO PO DES',
           message      = mensaje,
-          login        = 'monitoraservices',
-          password     = 'Ppql2016')
+          login        = '',
+          password     = '')
