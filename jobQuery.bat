@@ -1,0 +1,1 @@
+C:\<Ruta a hdbsql>\hdbsql -n <hostname HANA> -i <Numero de instancia Hana> -u <Usuario Hana> -p <Contraseña Hana> -I C:\<Ruta a comando SQL>\jobQueryFISL.sql > C:\<Ruta al archivo de log final>\resultFinal.txt
